@@ -230,7 +230,7 @@ The Community Guidelines section here was originally forked from the [United Sta
 <!--CONTRIBUTOR COUNT START--> 182 <!--CONTRIBUTOR COUNT END-->
 
 <!-- readme: contributors -start -->
-<table>
+<table role="presentation">
 	<tbody>
 		<tr>
             <td align="center">
