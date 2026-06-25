@@ -230,7 +230,7 @@ The Community Guidelines section here was originally forked from the [United Sta
 <!--CONTRIBUTOR COUNT START--> 182 <!--CONTRIBUTOR COUNT END-->
 
 <!-- readme: contributors -start -->
-<table role="presentation">
+<table>
 	<tbody>
 		<tr>
             <td align="center">
@@ -864,10 +864,10 @@ The Community Guidelines section here was originally forked from the [United Sta
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/PeterDaveHello">
-                    <img src="https://avatars.githubusercontent.com/u/3691490?v=4" width="100;" alt="PeterDaveHello"/>
+                <a href="https://github.com/awolfe76">
+                    <img src="https://avatars.githubusercontent.com/u/2932572?v=4" width="100;" alt="awolfe76"/>
                     <br />
-                    <sub><b>Peter Dave Hello</b></sub>
+                    <sub><b>Andrew Wolfe</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -959,13 +959,6 @@ The Community Guidelines section here was originally forked from the [United Sta
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/awolfe76">
-                    <img src="https://avatars.githubusercontent.com/u/2932572?v=4" width="100;" alt="awolfe76"/>
-                    <br />
-                    <sub><b>Andrew Wolfe</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/sashashura">
                     <img src="https://avatars.githubusercontent.com/u/93376818?v=4" width="100;" alt="sashashura"/>
                     <br />
@@ -979,8 +972,6 @@ The Community Guidelines section here was originally forked from the [United Sta
                     <sub><b>Ben Morris</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/bonnieAcameron">
                     <img src="https://avatars.githubusercontent.com/u/96838068?v=4" width="100;" alt="bonnieAcameron"/>
@@ -988,6 +979,8 @@ The Community Guidelines section here was originally forked from the [United Sta
                     <sub><b>Bonnie Cameron</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/bruffridge">
                     <img src="https://avatars.githubusercontent.com/u/1322063?v=4" width="100;" alt="bruffridge"/>
@@ -1000,6 +993,20 @@ The Community Guidelines section here was originally forked from the [United Sta
                     <img src="https://avatars.githubusercontent.com/u/702526?v=4" width="100;" alt="cfarm"/>
                     <br />
                     <sub><b>Catherine Farman</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/konklone">
+                    <img src="https://avatars.githubusercontent.com/u/4592?v=4" width="100;" alt="konklone"/>
+                    <br />
+                    <sub><b>Eric Mill</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/PeterDaveHello">
+                    <img src="https://avatars.githubusercontent.com/u/3691490?v=4" width="100;" alt="PeterDaveHello"/>
+                    <br />
+                    <sub><b>Peter Dave Hello</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -1016,6 +1023,8 @@ The Community Guidelines section here was originally forked from the [United Sta
                     <sub><b>Nick</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/mikki-stacey">
                     <img src="https://avatars.githubusercontent.com/u/91696171?v=4" width="100;" alt="mikki-stacey"/>
@@ -1023,8 +1032,13 @@ The Community Guidelines section here was originally forked from the [United Sta
                     <sub><b>Mikki Stacey</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
+            <td align="center">
+                <a href="https://github.com/fsierra">
+                    <img src="https://avatars.githubusercontent.com/u/903042?v=4" width="100;" alt="fsierra"/>
+                    <br />
+                    <sub><b>Fabian Sierra</b></sub>
+                </a>
+            </td>
             <td align="center">
                 <a href="https://github.com/louh">
                     <img src="https://avatars.githubusercontent.com/u/2553268?v=4" width="100;" alt="louh"/>
@@ -1033,24 +1047,10 @@ The Community Guidelines section here was originally forked from the [United Sta
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/konklone">
-                    <img src="https://avatars.githubusercontent.com/u/4592?v=4" width="100;" alt="konklone"/>
-                    <br />
-                    <sub><b>Eric Mill</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/jeffpw-goog">
                     <img src="https://avatars.githubusercontent.com/u/165937506?v=4" width="100;" alt="jeffpw-goog"/>
                     <br />
                     <sub><b>jeffpw-goog</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/fsierra">
-                    <img src="https://avatars.githubusercontent.com/u/903042?v=4" width="100;" alt="fsierra"/>
-                    <br />
-                    <sub><b>Fabian Sierra</b></sub>
                 </a>
             </td>
             <td align="center">
