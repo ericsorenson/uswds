@@ -18,15 +18,18 @@
 
 import path from "node:path";
 import { createRequire } from "node:module";
-import { buildSync } from "esbuild";
+import { build } from "esbuild";
 
 // twig.js is CJS-only; use createRequire to load it in an ESM context.
+// NOTE: this Node-side instance is only used at BUILD time (compiling .twig
+// source to tokens in the transform hook). It is a separate copy from the
+// esbuild-bundled runtime that executes in the browser — see bundleTwigRuntime.
 const require = createRequire(import.meta.url);
 const Twig = require("twig");
-
-// Disable Twig's internal template cache. Vite handles caching at the
-// module level; leaving Twig's cache on causes "There is already a template
-// with the ID" errors during HMR.
+// Disable the cache on the Node-side (build-time) instance too. During HMR,
+// transform() re-runs Twig.twig({ id, data }) on this instance; without
+// cache(false), re-registering an already-registered template id throws
+// "There is already a template with the ID …" on the server side.
 Twig.cache(false);
 
 // Virtual module ID that .twig files import the twig runtime from.
@@ -34,26 +37,74 @@ const TWIG_RUNTIME_ID = "virtual:uswds-twig-runtime";
 const RESOLVED_TWIG_RUNTIME_ID = "\0" + TWIG_RUNTIME_ID;
 
 /**
+ * esbuild plugin that resolves the Node built-ins twig references (`fs`,
+ * `path`, `module`) to an empty module. twig only uses these in its optional
+ * filesystem template loader; Storybook renders from inline data, so the
+ * loader is never exercised.
+ *
+ * Marking them `external` instead would leave `require("fs")` calls in the ESM
+ * output, which esbuild's ESM interop turns into a `__require` shim that throws
+ * `Dynamic require of "fs" is not supported` at runtime. twig catches that and
+ * logs `Missing fs and path modules...` to the console on every load. Stubbing
+ * the modules to `undefined` lets twig's `try/catch` succeed silently, and its
+ * own `if (!fs || !path)` guard still correctly rejects filesystem loads.
+ */
+const stubNodeBuiltins = {
+  name: "stub-node-builtins",
+  setup(build) {
+    const filter = /^(fs|path|module)$/;
+    build.onResolve({ filter }, (args) => ({
+      path: args.path,
+      namespace: "stub-builtin",
+    }));
+    build.onLoad({ filter: /.*/, namespace: "stub-builtin" }, () => ({
+      contents: "export default undefined;",
+      loader: "js",
+    }));
+  },
+};
+
+/**
  * Pre-bundle the twig package into a single ESM module using esbuild.
  * esbuild resolves twig's internal require() graph (twig.factory → twig.core,
  * etc.) and emits a clean ESM module with a default export, which Rollup can
  * consume without the static-analysis failures of @rollup/plugin-commonjs.
- * @returns {string} ESM source code for the twig runtime
+ *
+ * The bundled module also disables twig's internal template cache. Each .twig
+ * module registers itself via `Twig.twig({ id, data })` when it executes. On
+ * HMR, Vite re-executes the changed module against the same still-alive runtime
+ * instance, which would re-register an already-registered id and throw
+ * "There is already a template with the ID …". Disabling the cache here (in the
+ * runtime that actually executes in the browser) makes re-registration a no-op.
+ * @returns {Promise<string>} ESM source code for the twig runtime
  */
-function bundleTwigRuntime() {
+async function bundleTwigRuntime() {
   const twigEntry = require.resolve("twig");
-  const result = buildSync({
+  const result = await build({
     entryPoints: [twigEntry],
     bundle: true,
     format: "esm",
     platform: "browser",
     write: false,
-    // twig references Node built-ins in its fs loader; stub them since
-    // Storybook renders templates from inline data, not the filesystem.
-    external: ["fs", "path", "module"],
+    plugins: [stubNodeBuiltins],
     logLevel: "silent",
   });
-  return result.outputFiles[0].text;
+  // Disable the browser runtime's template cache so HMR re-registration of a
+  // template id does not throw. esbuild emits the twig instance as
+  // `export default <expr>;`; rebind it to a name so we can call cache(false)
+  // on the exact instance that .twig modules import and register into.
+  const bundled = result.outputFiles[0].text;
+  const EXPORT_RE = /^export default (.+);$/m;
+  if (!EXPORT_RE.test(bundled)) {
+    throw new Error(
+      "vite-plugin-twig: could not locate esbuild's `export default` in the " +
+        "bundled twig runtime; the cache-disabling patch cannot be applied.",
+    );
+  }
+  return bundled.replace(
+    EXPORT_RE,
+    "const __twig = $1;\n__twig.cache(false);\nexport default __twig;",
+  );
 }
 
 /**
@@ -69,7 +120,9 @@ function bundleTwigRuntime() {
 export default function twigPlugin(options = {}) {
   const { namespaces = {} } = options;
   let root = process.cwd();
-  let twigRuntimeCode = null;
+  // Cache the bundling *promise* (not the resolved value) so concurrent load()
+  // calls dedupe onto a single esbuild run instead of racing to bundle twice.
+  let twigRuntimePromise = null;
 
   return {
     name: "uswds-twig",
@@ -107,12 +160,12 @@ export default function twigPlugin(options = {}) {
      * Serve the esbuild-bundled twig runtime for the virtual module.
      * Bundling is lazy + cached so it runs at most once per Vite process.
      */
-    load(id) {
+    async load(id) {
       if (id === RESOLVED_TWIG_RUNTIME_ID) {
-        if (twigRuntimeCode === null) {
-          twigRuntimeCode = bundleTwigRuntime();
+        if (twigRuntimePromise === null) {
+          twigRuntimePromise = bundleTwigRuntime();
         }
-        return twigRuntimeCode;
+        return twigRuntimePromise;
       }
       return null;
     },
@@ -262,7 +315,13 @@ async function processToken(pluginCtx, importerId, token, dependencies, root) {
   }
 }
 
-async function processDependency(pluginCtx, importerId, token, dependencies, root) {
+async function processDependency(
+  pluginCtx,
+  importerId,
+  token,
+  dependencies,
+  root,
+) {
   const originalPath = token.value;
 
   // Resolve the dependency path using Vite's resolver (respects our resolveId hook).
